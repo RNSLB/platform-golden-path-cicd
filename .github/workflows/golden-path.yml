@@ -195,24 +195,34 @@ jobs:
       - name: Calculate deployment cost
         id: cost
         run: |
-          IMAGE_SIZE=${{ needs.build.outputs.image-size }}
-          if [ -z "$IMAGE_SIZE" ] || [ "$IMAGE_SIZE" == "" ]; then
+          IMAGE_SIZE="${{ needs.build.outputs.image-size }}"
+          if [ -z "$IMAGE_SIZE" ] || [ "$IMAGE_SIZE" = "" ]; then
             IMAGE_SIZE=52428800
           fi
-          COST=$(python scripts/calculate-deployment-cost.py \
+          python scripts/calculate-deployment-cost.py \
             --image-size $IMAGE_SIZE \
-            --region us-east-1)
-          echo "cost=${COST}" >> $GITHUB_OUTPUT
+            --region us-east-1 > cost_output.txt
+          COST=$(tail -n 1 cost_output.txt)
+          echo "cost=$COST" >> $GITHUB_OUTPUT
+          cat cost_output.txt
       
       - name: Send Slack notification
-        if: always()
+        if: always() && env.SLACK_WEBHOOK != ''
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         run: |
+          COST="${{ steps.cost.outputs.cost }}"
+          if [ -z "$COST" ]; then
+            COST="0.00"
+          fi
+          IMAGE_TAG="${{ needs.build.outputs.image-tag }}"
+          if [ -z "$IMAGE_TAG" ]; then
+            IMAGE_TAG="no-image"
+          fi
           python scripts/notify-slack.py \
             --status "${{ job.status }}" \
-            --cost "${{ steps.cost.outputs.cost }}" \
-            --image "${{ needs.build.outputs.image-tag }}" \
+            --cost "$COST" \
+            --image "$IMAGE_TAG" \
             --commit "${{ github.sha }}" \
             --actor "${{ github.actor }}" \
-            --branch "${{ github.ref_name }}"
+            --branch "${{ github.ref_name }}" || echo "Slack notification skipped"

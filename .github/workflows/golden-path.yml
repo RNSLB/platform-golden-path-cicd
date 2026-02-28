@@ -39,7 +39,7 @@ jobs:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
       
       - name: Upload SARIF to GitHub Security
-        if: always()
+        if: always() && hashFiles('semgrep.sarif') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: semgrep.sarif
@@ -195,8 +195,12 @@ jobs:
       - name: Calculate deployment cost
         id: cost
         run: |
+          IMAGE_SIZE=${{ needs.build.outputs.image-size }}
+          if [ -z "$IMAGE_SIZE" ] || [ "$IMAGE_SIZE" == "" ]; then
+            IMAGE_SIZE=52428800
+          fi
           COST=$(python scripts/calculate-deployment-cost.py \
-            --image-size ${{ needs.build.outputs.image-size }} \
+            --image-size $IMAGE_SIZE \
             --region us-east-1)
           echo "cost=${COST}" >> $GITHUB_OUTPUT
       

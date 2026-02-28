@@ -160,11 +160,14 @@ jobs:
           echo "size=${SIZE}" >> $GITHUB_OUTPUT
       
       - name: Generate SBOM
-        uses: anchore/sbom-action@v0
-        with:
-          image: ${{ steps.meta.outputs.tags }}
-          format: spdx-json
-          output-file: sbom.spdx.json
+        run: |
+          IMAGE_TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
+          echo "Generating SBOM for: $IMAGE_TAG"
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v $(pwd):/out \
+            anchore/syft:latest \
+            $IMAGE_TAG -o spdx-json=/out/sbom.spdx.json
       
       - name: Upload SBOM
         uses: actions/upload-artifact@v4

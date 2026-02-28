@@ -1,4 +1,3 @@
-
 # Multi-stage build for smaller final image
 
 # Stage 1: Builder
@@ -14,23 +13,24 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copy dependencies from builder
-COPY --from=builder /root/.local /root/.local
+# Create non-root user first
+RUN useradd -m -u 1000 appuser
+
+# Copy dependencies from builder to appuser's home
+COPY --from=builder --chown=appuser:appuser /root/.local /home/appuser/.local
 
 # Copy application
-COPY app.py .
+COPY --chown=appuser:appuser app.py .
+
+# Switch to non-root user
+USER appuser
 
 # Ensure scripts are in PATH
-ENV PATH=/root/.local/bin:$PATH
-
-# Create non-root user
-RUN useradd -m -u 1000 appuser && \
-    chown -R appuser:appuser /app
-USER appuser
+ENV PATH=/home/appuser/.local/bin:$PATH
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD python -c "import requests; requests.get('http://localhost:8080/health')"
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"
 
 # Expose port
 EXPOSE 8080

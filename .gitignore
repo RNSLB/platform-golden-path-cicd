@@ -1,0 +1,1 @@
+# Python __pycache__/ *.py[cod] *$py.class *.so .Python env/ venv/ build/ dist/ *.egg-info/  # Testing .pytest_cache/ .coverage htmlcov/ .tox/  # IDEs .vscode/ .idea/ *.swp  # OS .DS_Store 

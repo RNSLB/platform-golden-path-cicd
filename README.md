@@ -1,0 +1,6 @@
+# Golden Path CI/CD Template  Production-ready CI/CD with security, testing, and cost tracking built-in.  ## Quick Start  1. Copy `.github/workflows/golden-path.yml` to your repo 2. Push code 3. Pipeline runs automatically  ## Features  - 🔒 Security scanning (Semgrep) - 🧪 Automated testing (pytest) - 🐳 Docker building - 💰 Cost tracking - 🔔 Slack notifications  ## Pipeline Jobs  1. **Security** (3-5 min) - SAST with Semgrep 2. **Test** (2-4 min) - pytest with 80% coverage 3. **Build** (5-8 min) - Multi-stage Docker 4. **FinOps** (1-2 min) - Cost calculation  Total: 11-19 minutes  ## Cost Tracking  Calculates: - ECR storage - GitHub Actions minutes - ECS Fargate runtime - Data transfer  Example output:
+💰 Deployment Cost Estimate (us-east-1)
+ECR Storage: $ 0.05/month Build (Actions): $ 0.80/month Runtime (Fargate):$ 15.20/month Data Transfer: $ 0.90/month ============================================= TOTAL: $ 16.95/month
+ ## Configuration  Optional secrets: - `CODECOV_TOKEN` - Coverage reporting - `SLACK_WEBHOOK` - Slack notifications  ## Example Service  See `examples/python-service/` for a complete working example.  Run locally: ```bash cd examples/python-service pip install -r requirements.txt python app.py
+License
+MIT 

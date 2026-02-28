@@ -86,4 +86,6 @@ def internal_error(error):
 
 if __name__ == '__main__':
     logger.info(f"Starting app v{VERSION} in {ENVIRONMENT}")
-    app.run(host='0.0.0.0', port=8080, debug=False)
+    # Note: This is only for local development
+    # Production uses Gunicorn (see Dockerfile)
+    app.run(host='127.0.0.1', port=8080, debug=False)

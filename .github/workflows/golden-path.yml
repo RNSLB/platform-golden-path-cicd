@@ -201,8 +201,10 @@ jobs:
         id: cost
         run: |
           IMAGE_SIZE="${{ needs.build.outputs.image-size }}"
-          if [ -z "$IMAGE_SIZE" ] || [ "$IMAGE_SIZE" = "" ]; then
+          # Check if null, empty, or not set
+          if [ "$IMAGE_SIZE" = "null" ] || [ -z "$IMAGE_SIZE" ] || [ "$IMAGE_SIZE" = "" ]; then
             IMAGE_SIZE=52428800
+            echo "Using default image size: 50MB"
           fi
           python scripts/calculate-deployment-cost.py \
             --image-size $IMAGE_SIZE \

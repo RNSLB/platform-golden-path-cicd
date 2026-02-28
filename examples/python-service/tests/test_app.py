@@ -60,7 +60,8 @@ def test_create_data(client):
 def test_create_data_no_payload(client):
     """Test POST without data"""
     response = client.post('/api/v1/data')
-    assert response.status_code == 400
+    # Should return 400 or 415 (missing content-type)
+    assert response.status_code in [400, 415]
 
 def test_404_error(client):
     """Test 404 handler"""
